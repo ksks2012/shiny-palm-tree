@@ -1,0 +1,109 @@
+cmake_minimum_required(VERSION 3.10)
+project(UIFramework VERSION 1.0.0)
+
+# Set C++ standard
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# Find required packages
+find_package(SDL2 REQUIRED)
+find_package(SDL2_ttf REQUIRED)
+
+# Check if Catch2 header is available
+set(CATCH2_HEADER "${CMAKE_SOURCE_DIR}/lib/catch2/catch.hpp")
+if(EXISTS ${CATCH2_HEADER})
+    set(CATCH2_AVAILABLE TRUE)
+    message(STATUS "Catch2 header found at ${CATCH2_HEADER}")
+else()
+    set(CATCH2_AVAILABLE FALSE)
+    message(STATUS "Catch2 header not found - tests disabled")
+endif()
+
+
+# Include directories
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+
+# Add Catch2 include directory if available
+if(CATCH2_AVAILABLE)
+    include_directories(${CMAKE_SOURCE_DIR}/lib)
+endif()
+
+# UI Framework source files
+set(UI_SOURCES
+    src/Interface/ui/UIComponent.cpp
+    src/Interface/ui/UIButton.cpp
+    src/Interface/ui/UICard.cpp
+    src/Interface/ui/UIManager.cpp
+    src/Interface/ui/UIContainer.cpp
+    src/Interface/ui/UITooltip.cpp
+    src/Interface/ui/FocusableButton.cpp
+    src/Interface/ui/FocusableButtonTestWindow.cpp
+    src/Systems/SDLManager.cpp
+)
+
+# Create static library
+add_library(UIFramework STATIC ${UI_SOURCES})
+
+# Create shared library option
+add_library(UIFramework_shared SHARED ${UI_SOURCES})
+
+# Set library properties
+set_target_properties(UIFramework_shared PROPERTIES
+    VERSION ${PROJECT_VERSION}
+    SOVERSION 1
+    OUTPUT_NAME UIFramework
+)
+
+# Link libraries
+target_link_libraries(UIFramework SDL2::SDL2 SDL2_ttf::SDL2_ttf)
+target_link_libraries(UIFramework_shared SDL2::SDL2 SDL2_ttf::SDL2_ttf)
+
+# Install targets
+install(TARGETS UIFramework UIFramework_shared
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib
+    RUNTIME DESTINATION bin
+)
+
+# Install headers
+install(DIRECTORY include/ DESTINATION include/UIFramework)
+
+# Assuming SurviveLib is another library you have
+add_executable(FocusableButtonTest testing/testing_focusable_button.cpp)
+target_link_libraries(FocusableButtonTest PRIVATE UIFramework_shared)
+
+# Add tests if Catch2 is available
+if(CATCH2_AVAILABLE)
+    enable_testing()
+
+    # Test source files
+    set(TEST_SOURCES
+        tests/main.cpp
+        tests/test_ui_manager.cpp
+        tests/test_ui_container.cpp
+        tests/test_ui_integration.cpp
+        tests/test_ui_layout.cpp
+        tests/test_ui_focus.cpp
+    )
+
+    # Create test executable
+    add_executable(UIFrameworkTests ${TEST_SOURCES})
+    target_link_libraries(UIFrameworkTests PRIVATE UIFramework_shared)
+
+    # Add compile flags for threading support (required for threading tests)
+    target_compile_options(UIFrameworkTests PRIVATE -pthread)
+    target_link_options(UIFrameworkTests PRIVATE -pthread)
+
+    # Create custom test target
+    add_custom_target(test_run
+        COMMAND UIFrameworkTests
+        DEPENDS UIFrameworkTests
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+        COMMENT "Running Catch2 tests"
+    )
+
+    message(STATUS "Catch2 tests enabled - use 'make test_run' to run tests")
+else()
+    message(STATUS "Catch2 not available - tests disabled")
+    message(STATUS "To enable tests, ensure ${CMAKE_SOURCE_DIR}/lib/catch2/catch.hpp exists")
+endif()
