@@ -33,6 +33,7 @@ set(UI_SOURCES
     src/Interface/ui/UIComponent.cpp
     src/Interface/ui/UIButton.cpp
     src/Interface/ui/UICard.cpp
+    src/Interface/ui/UILabel.cpp
     src/Interface/ui/UIManager.cpp
     src/Interface/ui/UIContainer.cpp
     src/Interface/ui/UITooltip.cpp
@@ -84,6 +85,7 @@ if(CATCH2_AVAILABLE)
         tests/test_ui_integration.cpp
         tests/test_ui_layout.cpp
         tests/test_ui_focus.cpp
+        tests/test_ui_label.cpp
     )
 
     # Create test executable
@@ -107,3 +109,7 @@ else()
     message(STATUS "Catch2 not available - tests disabled")
     message(STATUS "To enable tests, ensure ${CMAKE_SOURCE_DIR}/lib/catch2/catch.hpp exists")
 endif()
+
+# Add UILabel example
+add_executable(LabelExample examples/label_example.cpp)
+target_link_libraries(LabelExample PRIVATE UIFramework_shared)

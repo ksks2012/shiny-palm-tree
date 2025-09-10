@@ -4,7 +4,7 @@
 
 namespace UIConstants {
 // SDLManager Window Settings
-constexpr const char* WINDOW_TITLE = "Endgame MVP";
+constexpr const char* WINDOW_TITLE = "UI Framework Example";
 constexpr int WINDOW_POS = SDL_WINDOWPOS_CENTERED;
 constexpr int WINDOW_WIDTH = 1080;
 constexpr int WINDOW_HEIGHT = 720;
