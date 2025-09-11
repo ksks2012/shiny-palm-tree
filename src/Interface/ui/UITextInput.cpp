@@ -238,8 +238,6 @@ void UITextInput::paste() {
     }
 }
 
-#include <iostream>
-
 void UITextInput::insertTextAtCursor(const std::string& insertText) {
     if (insertText.empty()) return;
     
