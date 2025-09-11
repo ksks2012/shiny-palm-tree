@@ -34,6 +34,7 @@ set(UI_SOURCES
     src/Interface/ui/UIButton.cpp
     src/Interface/ui/UICard.cpp
     src/Interface/ui/UILabel.cpp
+    src/Interface/ui/UITextInput.cpp
     src/Interface/ui/UIManager.cpp
     src/Interface/ui/UIContainer.cpp
     src/Interface/ui/UITooltip.cpp
@@ -86,6 +87,7 @@ if(CATCH2_AVAILABLE)
         tests/test_ui_layout.cpp
         tests/test_ui_focus.cpp
         tests/test_ui_label.cpp
+        tests/test_ui_textinput.cpp
     )
 
     # Create test executable
@@ -113,3 +115,7 @@ endif()
 # Add UILabel example
 add_executable(LabelExample examples/label_example.cpp)
 target_link_libraries(LabelExample PRIVATE UIFramework_shared)
+
+# Add UITextInput example
+add_executable(TextInputExample examples/textinput_example.cpp)
+target_link_libraries(TextInputExample PRIVATE UIFramework_shared)
