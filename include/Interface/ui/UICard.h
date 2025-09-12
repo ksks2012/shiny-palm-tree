@@ -2,10 +2,13 @@
 #include "UIComponent.h"
 #include "CardDisplayData.h"
 
+// Forward declaration for data binding
+class UIDataBinding;
+
 /**
  * Generic card UI component for displaying any item as a card.
  * Uses CardDisplayData for complete decoupling from game logic.
- * Supports selection highlighting and drag rendering.
+ * Supports selection highlighting, drag rendering, and data binding.
  */
 class UICard : public UIComponent {
 public:

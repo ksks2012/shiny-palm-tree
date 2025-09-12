@@ -40,6 +40,7 @@ set(UI_SOURCES
     src/Interface/ui/UILayoutContainer.cpp
     src/Interface/ui/Layout.cpp
     src/Interface/ui/UITooltip.cpp
+    src/Interface/ui/UIDataBinding.cpp
     src/Interface/ui/FocusableButton.cpp
     src/Interface/ui/FocusableButtonTestWindow.cpp
     src/Systems/SDLManager.cpp
@@ -126,3 +127,7 @@ target_link_libraries(TextInputExample PRIVATE UIFramework_shared)
 # Add Layout examples
 add_executable(LayoutExamples examples/layout_examples.cpp)
 target_link_libraries(LayoutExamples PRIVATE UIFramework_shared)
+
+# Add Data Binding example
+add_executable(DataBindingExample examples/databinding_example.cpp)
+target_link_libraries(DataBindingExample PRIVATE UIFramework_shared)

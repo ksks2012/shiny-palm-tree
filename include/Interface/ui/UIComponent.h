@@ -52,6 +52,13 @@ public:
     void setFocused(bool focused) { hasFocus_ = focused; }
     bool hasFocus() const { return hasFocus_; }
     
+    // Visibility and enabled state for data binding
+    virtual void setVisible(bool visible) { visible_ = visible; }
+    bool isVisible() const { return visible_; }
+    
+    virtual void setEnabled(bool enabled) { enabled_ = enabled; }
+    bool isEnabled() const { return enabled_; }
+    
     // Getters
     int getX() const { return x_; }
     int getY() const { return y_; }
@@ -67,6 +74,10 @@ protected:
     int zOrder_ = 0;
     bool isModal_ = false;
     bool hasFocus_ = false;
+    
+    // Visibility and enabled state
+    bool visible_ = true;
+    bool enabled_ = true;
     
     // Helper function to get text dimensions
     void getTextSize(const std::string& text, int& width, int& height);
