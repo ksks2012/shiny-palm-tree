@@ -10,6 +10,10 @@ SDLManager::~SDLManager() {
 }
 
 void SDLManager::init() {
+    if (initialized) {
+        return; // Already initialized, do nothing
+    }
+    
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         throw std::runtime_error("SDL_Init failed: " + std::string(SDL_GetError()));
     }
@@ -27,7 +31,9 @@ void SDLManager::init() {
     font = TTF_OpenFont("./assets/font.ttf", 16);
     if (!font) {
         throw std::runtime_error("Font loading failed: " + std::string(TTF_GetError()));
-    }    
+    }
+    
+    initialized = true;
 }
 
 bool SDLManager::initialize() {
