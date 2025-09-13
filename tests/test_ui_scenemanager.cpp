@@ -1,4 +1,4 @@
-#include "catch2/catch_amalgamated.hpp"
+#include "../lib/catch2/catch.hpp"
 #include "Interface/ui/UISceneManager.h"
 #include "Systems/SDLManager.h"
 #include <memory>
@@ -174,12 +174,12 @@ TEST_CASE("UISceneManager Update and Render", "[UISceneManager]") {
         // Update scene
         sceneManager.update(0.016f);
         REQUIRE(testScene->updateCount == 1);
-        REQUIRE(testScene->lastDeltaTime == Catch::Approx(0.016f));
+        REQUIRE(testScene->lastDeltaTime == Approx(0.016f));
         
         // Update again
         sceneManager.update(0.032f);
         REQUIRE(testScene->updateCount == 2);
-        REQUIRE(testScene->lastDeltaTime == Catch::Approx(0.032f));
+        REQUIRE(testScene->lastDeltaTime == Approx(0.032f));
     }
     
     SECTION("Paused Scene Not Updated") {
