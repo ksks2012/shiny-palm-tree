@@ -1,4 +1,4 @@
-#include "../lib/catch2/catch.hpp"
+#include <catch2/catch.hpp>
 #include "Interface/ui/UITextInput.h"
 #include "Systems/SDLManager.h"
 
