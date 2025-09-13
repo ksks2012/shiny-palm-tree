@@ -38,6 +38,9 @@ public:
     // Find top-most component at a point (considers z-order and modal state)
     std::shared_ptr<UIComponent> getComponentAt(int x, int y) const;
     
+    // Event handling
+    void handleEvent(const SDL_Event& event);
+    
     // Focus management
     void setFocus(std::shared_ptr<UIComponent> component);
     void clearFocus();

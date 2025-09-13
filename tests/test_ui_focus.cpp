@@ -1,4 +1,4 @@
-#include "../lib/catch2/catch.hpp"
+#include <catch2/catch.hpp>
 #include "Interface/ui/UIManager.h"
 #include "Interface/ui/FocusableButton.h"
 #include "Systems/SDLManager.h"

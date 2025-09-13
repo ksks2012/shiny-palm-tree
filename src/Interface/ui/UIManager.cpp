@@ -1,6 +1,7 @@
 #include "Interface/ui/UIManager.h"
 #include "Systems/SDLManager.h"
 #include <algorithm>
+#include <iostream>
 
 void UIManager::addComponent(std::shared_ptr<UIComponent> comp, bool persistent) {
     if (persistent) {
@@ -123,6 +124,67 @@ std::shared_ptr<UIComponent> UIManager::getComponentAt(int x, int y) const {
     }
     
     return nullptr;
+}
+
+// Event handling
+void UIManager::handleEvent(const SDL_Event& event) {
+    // Handle keyboard events for focus management first
+    if (event.type == SDL_KEYDOWN) {
+        switch (event.key.keysym.sym) {
+            case SDLK_TAB:
+                if (event.key.keysym.mod & KMOD_SHIFT) {
+                    focusPrevious();
+                } else {
+                    focusNext();
+                }
+                return;
+        }
+    }
+    
+    // Let modal component handle events first if present
+    auto modal = modalComponent_.lock();
+    if (modal) {
+        modal->handleEvent(event);
+        return;
+    }
+    
+    // For mouse events, find the component at the mouse position
+    if (event.type == SDL_MOUSEBUTTONDOWN || event.type == SDL_MOUSEBUTTONUP || 
+        event.type == SDL_MOUSEMOTION || event.type == SDL_MOUSEWHEEL) {
+        
+        int mouseX, mouseY;
+        if (event.type == SDL_MOUSEWHEEL) {
+            SDL_GetMouseState(&mouseX, &mouseY);
+        } else {
+            mouseX = event.button.x;
+            mouseY = event.button.y;
+        }
+        
+        auto component = getComponentAt(mouseX, mouseY);
+        if (component) {
+            // Set focus on mouse click for focusable components
+            if (event.type == SDL_MOUSEBUTTONDOWN && component->canReceiveFocus()) {
+                setFocus(component);
+            }
+            component->handleEvent(event);
+            return;
+        }
+    }
+    
+    // For keyboard events, send to focused component
+    if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP || event.type == SDL_TEXTINPUT) {
+        auto focused = focusedComponent_.lock();
+        if (focused) {
+            focused->handleEvent(event);
+            return;
+        }
+    }
+    
+    // If no specific component handled it, send to all components
+    auto allComponents = getAllComponents();
+    for (auto& component : allComponents) {
+        component->handleEvent(event);
+    }
 }
 
 // Focus management
