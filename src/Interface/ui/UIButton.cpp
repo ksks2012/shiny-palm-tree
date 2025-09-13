@@ -44,6 +44,12 @@ void UIButton::handleClick(int mouseX, int mouseY) {
     }
 }
 
+void UIButton::handleEvent(const SDL_Event& event) {
+    if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT) {
+        handleClick(event.button.x, event.button.y);
+    }
+}
+
 void UIButton::setText(const std::string& text) {
     text_ = text;
     updateSize();

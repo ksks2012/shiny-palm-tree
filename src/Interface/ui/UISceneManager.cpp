@@ -236,8 +236,18 @@ void UISceneManager::handleEvent(const SDL_Event& event) {
     
     auto currentScene = getCurrentScene();
     if (currentScene && !currentScene->isPaused()) {
-        currentScene->handleEvent(event);
+        // For keyboard events, let scene handle first (for shortcuts like ESC)
+        if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP) {
+            currentScene->handleEvent(event);
+        }
+        
+        // For all events (including mouse events), let UI components handle
         currentScene->getUIManager().handleEvent(event);
+        
+        // For non-keyboard events, let scene handle afterwards if needed
+        if (event.type != SDL_KEYDOWN && event.type != SDL_KEYUP) {
+            currentScene->handleEvent(event);
+        }
     }
 }
 

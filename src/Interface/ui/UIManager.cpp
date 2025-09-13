@@ -1,6 +1,7 @@
 #include "Interface/ui/UIManager.h"
 #include "Systems/SDLManager.h"
 #include <algorithm>
+#include <iostream>
 
 void UIManager::addComponent(std::shared_ptr<UIComponent> comp, bool persistent) {
     if (persistent) {
