@@ -93,7 +93,7 @@ if(CATCH2_AVAILABLE)
         tests/test_ui_focus.cpp
         tests/test_ui_label.cpp
         tests/test_ui_textinput.cpp
-        # tests/test_ui_scenemanager.cpp  # Temporarily disabled due to Catch2 linking issues
+        tests/test_ui_scenemanager.cpp
     )
 
     # Create test executable
