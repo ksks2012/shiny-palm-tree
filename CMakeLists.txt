@@ -138,3 +138,7 @@ target_link_libraries(DataBindingExample PRIVATE UIFramework_shared)
 # Add Scene Manager example
 add_executable(SceneExample examples/scene_example.cpp)
 target_link_libraries(SceneExample PRIVATE UIFramework_shared)
+
+# Add Progress Bar example
+add_executable(ProgressBarExample examples/progressbar_example.cpp)
+target_link_libraries(ProgressBarExample PRIVATE UIFramework_shared)
