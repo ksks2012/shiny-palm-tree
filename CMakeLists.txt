@@ -35,6 +35,7 @@ set(UI_SOURCES
     src/Interface/ui/UICard.cpp
     src/Interface/ui/UILabel.cpp
     src/Interface/ui/UITextInput.cpp
+    src/Interface/ui/UIProgressBar.cpp
     src/Interface/ui/UIManager.cpp
     src/Interface/ui/UIContainer.cpp
     src/Interface/ui/UILayoutContainer.cpp
