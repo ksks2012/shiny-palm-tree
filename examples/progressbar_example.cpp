@@ -131,11 +131,9 @@ private:
         
         // Instructions
         auto instructions = std::make_shared<UILabel>(50, 480, 700, 80, sdlManager_, 
-            "Instructions:\n"
-            "• Reset All - Sets all progress bars to 0%\n"
-            "• Random - Sets random progress values\n"
-            "• Bottom bar automatically cycles through progress values");
+            "Instructions: Reset All - Sets all progress bars to 0%. Random - Sets random progress values. Bottom bar automatically cycles through progress values.");
         instructions->setTextColor({200, 200, 200, 255});
+        instructions->setWordWrap(true);  // Enable word wrapping
         uiManager_.addComponent(instructions, true);
     }
     
