@@ -42,8 +42,9 @@ bool SDLManager::initialize() {
 }
 
 void SDLManager::cleanup() {
-    if (font) TTF_CloseFont(font);
-    TTF_Quit();
+    // NOTE: Avoid double free of font
+    // if (font) TTF_CloseFont(font);
+    // TTF_Quit();
     if (renderer) SDL_DestroyRenderer(renderer);
     if (window) SDL_DestroyWindow(window);
     SDL_Quit();
