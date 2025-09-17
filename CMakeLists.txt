@@ -36,6 +36,8 @@ set(UI_SOURCES
     src/Interface/ui/UILabel.cpp
     src/Interface/ui/UITextInput.cpp
     src/Interface/ui/UIProgressBar.cpp
+    src/Interface/ui/UITheme.cpp
+    src/Interface/ui/UIThemeManager.cpp
     src/Interface/ui/UIManager.cpp
     src/Interface/ui/UIContainer.cpp
     src/Interface/ui/UILayoutContainer.cpp
@@ -91,6 +93,7 @@ if(BUILD_UI_FRAMEWORK_TESTS AND CATCH2_AVAILABLE)
         tests/test_ui_label.cpp
         tests/test_ui_textinput.cpp
         tests/test_ui_scenemanager.cpp
+        tests/test_ui_theme.cpp
     )
 
     # Create test executable
@@ -148,6 +151,18 @@ if(BUILD_UI_FRAMEWORK_EXAMPLES)
     # Add Progress Bar example
     add_executable(ProgressBarExample examples/progressbar_example.cpp)
     target_link_libraries(ProgressBarExample PRIVATE UIFramework_shared)
+
+    # Add Theme example
+    add_executable(ThemeExample examples/theme_example.cpp)
+    target_link_libraries(ThemeExample PRIVATE UIFramework_shared)
+
+    # Add Theme console demo
+    add_executable(ThemeConsoleDemo examples/theme_console_demo.cpp)
+    target_link_libraries(ThemeConsoleDemo PRIVATE UIFramework_shared)
+
+    # Add Theme integration example
+    add_executable(ThemeIntegrationExample examples/theme_integration_example.cpp)
+    target_link_libraries(ThemeIntegrationExample PRIVATE UIFramework_shared)
 endif()
 
 if(BUILD_UI_FRAMEWORK_TESTS)
