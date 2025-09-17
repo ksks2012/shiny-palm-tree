@@ -4,6 +4,14 @@
 #include <unordered_map>
 #include <memory>
 #include <vector>
+#include <functional>
+
+// Forward declarations for component integration
+class UIButton;
+class UILabel;
+class UITextInput;
+class UIProgressBar;
+class UIManager;
 
 /**
  * UITheme - Basic theme system for UI framework
@@ -161,7 +169,21 @@ public:
     
     // Theme validation and utilities
     bool isValidTheme(const UIThemeData& theme) const;
+    
+    // Component theme application
     void applyThemeToComponent(const std::string& componentType, void* component) const;
+    void applyThemeToButton(class UIButton* button) const;
+    void applyThemeToLabel(class UILabel* label) const;
+    void applyThemeToTextInput(class UITextInput* textInput) const;
+    void applyThemeToProgressBar(class UIProgressBar* progressBar) const;
+    
+    // Batch theme application
+    void applyThemeToAllComponents(class UIManager* uiManager) const;
+    void refreshAllComponentThemes() const;
+    
+    // Theme change notifications
+    void registerThemeChangeCallback(std::function<void(const UIThemeData&)> callback);
+    void unregisterThemeChangeCallback(const std::function<void(const UIThemeData&)>* callback);
     
     // Future extension points
     bool loadThemeFromFile(const std::string& filePath);
@@ -187,6 +209,13 @@ private:
     std::shared_ptr<UIThemeData> currentTheme_;
     std::unordered_map<ThemeType, std::shared_ptr<UIThemeData>> predefinedThemes_;
     std::unordered_map<std::string, std::shared_ptr<UIThemeData>> customThemes_;
+    
+    // Theme change notification system
+    std::vector<std::function<void(const UIThemeData&)>> themeChangeCallbacks_;
+    void notifyThemeChange();
+    
+    // Component registry for theme updates
+    mutable std::vector<std::pair<std::string, void*>> registeredComponents_;
     
     // Color lookup map for string-based access
     mutable std::unordered_map<std::string, SDL_Color> colorLookup_;

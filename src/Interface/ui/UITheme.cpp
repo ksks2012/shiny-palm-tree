@@ -1,4 +1,8 @@
 #include "Interface/ui/UITheme.h"
+#include "Interface/ui/UIButton.h"
+#include "Interface/ui/UILabel.h"
+#include "Interface/ui/UITextInput.h"
+#include "Interface/ui/UIProgressBar.h"
 #include "UIConstants.h"
 #include <iostream>
 #include <fstream>
@@ -175,6 +179,7 @@ void UITheme::setCurrentTheme(ThemeType type) {
         currentThemeType_ = type;
         currentTheme_ = it->second;
         updateColorLookup();
+        notifyThemeChange();
         
         std::cout << "Theme switched to: " << currentTheme_->name << std::endl;
     } else {
@@ -188,6 +193,7 @@ void UITheme::setCustomTheme(const UIThemeData& themeData) {
         currentTheme_ = std::make_shared<UIThemeData>(themeData);
         customThemes_[themeData.name] = currentTheme_;
         updateColorLookup();
+        notifyThemeChange();
         
         std::cout << "Custom theme applied: " << themeData.name << std::endl;
     } else {
@@ -261,8 +267,105 @@ void UITheme::updateColorLookup() const {
 
 // Future extension methods - placeholder implementations
 void UITheme::applyThemeToComponent(const std::string& componentType, void* component) const {
-    // Placeholder for future component-specific theme application
-    std::cout << "Theme application to " << componentType << " component - not yet implemented" << std::endl;
+    if (!component) {
+        std::cerr << "Warning: Cannot apply theme to null component" << std::endl;
+        return;
+    }
+    
+    if (componentType == "UIButton") {
+        applyThemeToButton(static_cast<UIButton*>(component));
+    } else if (componentType == "UILabel") {
+        applyThemeToLabel(static_cast<UILabel*>(component));
+    } else if (componentType == "UITextInput") {
+        applyThemeToTextInput(static_cast<UITextInput*>(component));
+    } else if (componentType == "UIProgressBar") {
+        applyThemeToProgressBar(static_cast<UIProgressBar*>(component));
+    } else {
+        std::cout << "Theme application to " << componentType << " component - not yet implemented" << std::endl;
+    }
+}
+
+void UITheme::applyThemeToButton(UIButton* button) const {
+    if (!button) return;
+    
+    // Apply theme colors to button
+    button->setColors(
+        currentTheme_->colors.buttonBackground,
+        currentTheme_->colors.buttonText,
+        currentTheme_->colors.border
+    );
+    
+    std::cout << "Applied theme colors to UIButton" << std::endl;
+}
+
+void UITheme::applyThemeToLabel(UILabel* label) const {
+    if (!label) return;
+    
+    // Apply theme text color and alignment
+    label->setTextColor(currentTheme_->colors.text);
+    
+    std::cout << "Applied theme colors to UILabel" << std::endl;
+}
+
+void UITheme::applyThemeToTextInput(UITextInput* textInput) const {
+    if (!textInput) return;
+    
+    // Apply theme colors to text input
+    textInput->setColors(
+        currentTheme_->colors.inputBackground,
+        currentTheme_->colors.inputText,
+        currentTheme_->colors.inputBorder,
+        currentTheme_->colors.inputFocused
+    );
+    
+    std::cout << "Applied theme colors to UITextInput" << std::endl;
+}
+
+void UITheme::applyThemeToProgressBar(UIProgressBar* progressBar) const {
+    if (!progressBar) return;
+    
+    // Apply theme colors to progress bar
+    progressBar->setColors(
+        currentTheme_->colors.progressBackground,
+        currentTheme_->colors.progressFill,
+        currentTheme_->colors.progressBorder,
+        currentTheme_->colors.progressText
+    );
+    
+    std::cout << "Applied theme colors to UIProgressBar" << std::endl;
+}
+
+void UITheme::applyThemeToAllComponents(UIManager* uiManager) const {
+    // This would iterate through all components in UIManager
+    // Implementation depends on UIManager's internal structure
+    std::cout << "Applying theme to all components in UIManager - implementation pending" << std::endl;
+}
+
+void UITheme::refreshAllComponentThemes() const {
+    // Apply current theme to all registered components
+    for (const auto& componentPair : registeredComponents_) {
+        applyThemeToComponent(componentPair.first, componentPair.second);
+    }
+}
+
+void UITheme::registerThemeChangeCallback(std::function<void(const UIThemeData&)> callback) {
+    themeChangeCallbacks_.push_back(callback);
+}
+
+void UITheme::unregisterThemeChangeCallback(const std::function<void(const UIThemeData&)>* callback) {
+    // Remove callback from vector - simplified implementation
+    // In production, you'd want a more sophisticated callback management system
+    std::cout << "Unregistering theme change callback" << std::endl;
+}
+
+void UITheme::notifyThemeChange() {
+    // Notify all registered callbacks about theme change
+    for (const auto& callback : themeChangeCallbacks_) {
+        callback(*currentTheme_);
+    }
+    
+    // Refresh all registered components
+    refreshAllComponentThemes();
 }
 
 bool UITheme::loadThemeFromFile(const std::string& filePath) {

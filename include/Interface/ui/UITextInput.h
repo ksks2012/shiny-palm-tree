@@ -59,6 +59,14 @@ public:
     void setPlaceholderColor(SDL_Color color) { placeholderColor_ = color; }
     SDL_Color getPlaceholderColor() const { return placeholderColor_; }
     
+    // Theme support - batch color setting
+    void setColors(SDL_Color background, SDL_Color text, SDL_Color border, SDL_Color focused) {
+        backgroundColor_ = background;
+        textColor_ = text;
+        borderColor_ = border;
+        focusedBorderColor_ = focused;
+    }
+    
     // Callbacks
     void setOnTextChanged(TextChangeCallback callback) { onTextChanged_ = callback; }
     void setOnEnterPressed(std::function<void()> callback) { onEnterPressed_ = callback; }
@@ -87,6 +95,7 @@ private:
     SDL_Color textColor_;
     SDL_Color backgroundColor_;
     SDL_Color borderColor_;
+    SDL_Color focusedBorderColor_;  // Added for theme support
     SDL_Color placeholderColor_;
     SDL_Color selectionColor_;
     SDL_Color cursorColor_;
