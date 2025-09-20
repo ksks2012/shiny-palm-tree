@@ -73,9 +73,11 @@ void UIManager::renderAll() {
     auto allComponents = getAllComponents();
     sortComponentsByZOrder(allComponents);
     
-    // Render components in z-order (lowest to highest)
+    // Render components in z-order (lowest to highest), only if visible
     for (auto& c : allComponents) {
-        c->render();
+        if (c->isVisible()) {
+            c->render();
+        }
     }
 }
 
@@ -87,12 +89,14 @@ void UIManager::layoutAndRenderClipped(const SDL_Rect& clip) {
     auto allComponents = getAllComponents();
     sortComponentsByZOrder(allComponents);
     
-    // Then render only components fully inside clip rect, in z-order
+    // Then render only visible components fully inside clip rect, in z-order
     for (auto& c : allComponents) {
-        SDL_Rect r = c->getRect();
-        if (r.x >= clip.x && r.x + r.w <= clip.x + clip.w &&
-            r.y >= clip.y && r.y + r.h <= clip.y + clip.h) {
-            c->render();
+        if (c->isVisible()) {
+            SDL_Rect r = c->getRect();
+            if (r.x >= clip.x && r.x + r.w <= clip.x + clip.w &&
+                r.y >= clip.y && r.y + r.h <= clip.y + clip.h) {
+                c->render();
+            }
         }
     }
 }
