@@ -28,6 +28,9 @@ if(CATCH2_AVAILABLE)
     include_directories(${CMAKE_SOURCE_DIR}/lib)
 endif()
 
+# Add nlohmann/json library
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/lib)
+
 # UI Framework source files
 set(UI_SOURCES
     src/Interface/ui/UIComponent.cpp
@@ -47,6 +50,9 @@ set(UI_SOURCES
     src/Interface/ui/UISceneManager.cpp
     src/Interface/ui/FocusableButton.cpp
     src/Interface/ui/FocusableButtonTestWindow.cpp
+    src/Interface/ui/TechNode.cpp
+    src/Interface/ui/TechTree.cpp
+    src/Interface/ui/TechTreeUI.cpp
     src/Systems/SDLManager.cpp
 )
 
