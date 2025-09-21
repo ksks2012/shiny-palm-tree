@@ -294,13 +294,22 @@ SDL_Color TechTreeUI::getTechStatusColor(TechStatus status) {
 }
 
 std::string TechTreeUI::getTechAtPosition(int x, int y) {
-    for (const auto& pair : techLabels) {
-        const auto& label = pair.second;
+    // Use the original tech node positions instead of UILabel positions
+    // to avoid double offset issues from AbsoluteLayout
+    const auto& allTechs = techTree.getAllTechs();
+    for (const auto& pair : allTechs) {
+        const auto& tech = pair.second;
         
-        // Check if point is within label bounds
-        if (x >= label->getX() && x <= label->getX() + label->getWidth() &&
-            y >= label->getY() && y <= label->getY() + label->getHeight()) {
-            return pair.first; // Return tech ID
+        // Use the tech node's original calculated position (relative to TechTreeUI)
+        int techX = tech->x;
+        int techY = tech->y;
+        int techW = tech->width;
+        int techH = tech->height;
+        
+        // Check if point is within tech node bounds
+        if (x >= techX && x <= techX + techW &&
+            y >= techY && y <= techY + techH) {
+            return tech->id; // Return tech ID
         }
     }
     return ""; // No tech found at position
