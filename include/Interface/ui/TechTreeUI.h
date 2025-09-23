@@ -1,6 +1,7 @@
 #pragma once
 #include "Interface/ui/UIContainer.h"
 #include "Interface/ui/UILabel.h"
+#include "Interface/ui/UIProgressBar.h"
 #include "Interface/ui/TechTree.h"
 #include "Systems/SDLManager.h"
 #include <string>
@@ -39,6 +40,12 @@ public:
     void updateTechDisplay(const std::string& techId);
 
     /**
+     * Update UI components (for progress bar animations)
+     * @param deltaTime Time elapsed since last update
+     */
+    void update(float deltaTime);
+
+    /**
      * Refresh technology button display
      */
     void refreshTechButtons();
@@ -71,9 +78,14 @@ private:
     // UILabel components for each tech node
     std::map<std::string, std::shared_ptr<UILabel>> techLabels;  ///< UILabel for each tech node
     
+    // UIProgressBar components for research progress
+    std::map<std::string, std::shared_ptr<UIProgressBar>> techProgressBars;  ///< UIProgressBar for each tech node
+    
     // Layout and rendering helpers
     void createTechLabels();                     ///< Create UILabel components for all tech nodes
+    void createTechProgressBars();               ///< Create UIProgressBar components for all tech nodes
     void updateTechLabelColors();                ///< Update colors based on tech status
+    void updateTechProgressBars();               ///< Update progress bars based on research progress
     void renderConnections();                    ///< Render connection lines between tech nodes
     void calculateTechLayout();                  ///< Calculate optimal positions for tech nodes
     SDL_Color getTechStatusColor(TechStatus status); ///< Get color based on tech status

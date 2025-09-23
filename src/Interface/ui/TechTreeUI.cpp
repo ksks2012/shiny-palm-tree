@@ -1,5 +1,6 @@
 #include "Interface/ui/TechTreeUI.h"
 #include "Interface/ui/UILabel.h"
+#include "Interface/ui/UIProgressBar.h"
 #include <iostream>
 #include <SDL2/SDL.h>
 #include <cmath>
@@ -11,6 +12,7 @@ TechTreeUI::TechTreeUI(int x, int y, int width, int height, SDLManager& sdlManag
     setAbsoluteLayout();
     
     createTechLabels();
+    createTechProgressBars();
 }
 
 void TechTreeUI::selectTech(const std::string& techId) {
@@ -38,14 +40,28 @@ void TechTreeUI::updateTechDisplay(const std::string& techId) {
     if (tech) {
         std::cout << "  Status: " << tech->getStatusText() << std::endl;
         std::cout << "  Progress: " << (tech->getProgressPercent() * 100.0f) << "%" << std::endl;
+        
+        // Update progress bar for this technology
+        updateTechProgressBars();
+    }
+}
+
+void TechTreeUI::update(float deltaTime) {
+    // Update all progress bar animations
+    for (const auto& pair : techProgressBars) {
+        const auto& progressBar = pair.second;
+        if (progressBar && progressBar->isVisible()) {
+            progressBar->update(deltaTime);
+        }
     }
 }
 
 void TechTreeUI::refreshTechButtons() {
     std::cout << "Refreshing tech button display" << std::endl;
     
-    // Recreate UILabel components to reflect any changes in tech tree
+    // Recreate UILabel and UIProgressBar components to reflect any changes in tech tree
     createTechLabels();
+    createTechProgressBars();
     
     // Print tech list for debugging
     const auto& allTechs = techTree.getAllTechs();
@@ -60,6 +76,7 @@ void TechTreeUI::refreshTechButtons() {
     
     // Update the display to reflect the new layout
     updateTechLabelColors();
+    updateTechProgressBars();
 }
 
 void TechTreeUI::layout() {
@@ -73,14 +90,15 @@ void TechTreeUI::render() {
     renderBackground({30, 30, 50, 200}); // Dark blue-gray background
     renderBorder({100, 100, 150, 255}, 2); // Light border
     
-    // Update tech label colors based on current status
+    // Update tech label colors and progress bars based on current status
     updateTechLabelColors();
+    updateTechProgressBars();
     
     // Render connection lines first (so they appear behind the tech nodes)
     renderConnections();
     
-    // Render all UILabel components (tech nodes)
-    UIContainer::render(); // This will render all child components including UILabels
+    // Render all UILabel and UIProgressBar components (tech nodes and progress bars)
+    UIContainer::render(); // This will render all child components including UILabels and UIProgressBars
     
     // Render title and instructions on top
     renderText("Tech Tree", 10, 10, {255, 255, 255, 255}); // White text
@@ -95,6 +113,12 @@ void TechTreeUI::render() {
         renderText("Selected: " + selectedTech->name, 10, infoY, {255, 255, 0, 255});
         renderText("Cost: " + std::to_string(selectedTech->researchCost), 10, infoY + 20, {255, 255, 0, 255});
         renderText("Status: " + selectedTech->getStatusText(), 10, infoY + 40, {255, 255, 0, 255});
+        
+        // Show progress if tech is being researched
+        if (selectedTech->status == TechStatus::RESEARCHING) {
+            int progress = static_cast<int>(selectedTech->getProgressPercent() * 100);
+            renderText("Progress: " + std::to_string(progress) + "%", 10, infoY + 60, {0, 255, 0, 255});
+        }
     }
 }
 
@@ -148,6 +172,9 @@ void TechTreeUI::handleEvent(const SDL_Event& event) {
 void TechTreeUI::createTechLabels() {
     // Clear existing labels first
     techLabels.clear();
+    
+    // Clear only UILabel children, preserve UIProgressBar children
+    // Note: We'll call clearChildren() here and recreate both labels and progress bars
     clearChildren(); // Remove all child components
     
     // First, calculate optimal positions for all tech nodes
@@ -207,6 +234,12 @@ void TechTreeUI::updateTechLabelColors() {
 
 void TechTreeUI::renderConnections() {
     const auto& allTechs = techTree.getAllTechs();
+    
+    static bool firstRender = true;
+    if (firstRender) {
+        std::cout << "🔗 Rendering tech tree connections..." << std::endl;
+        firstRender = false;
+    }
     
     for (const auto& pair : allTechs) {
         const auto& tech = pair.second;
@@ -532,4 +565,102 @@ void TechTreeUI::positionTechsInLevel(const std::vector<std::string>& techsInLev
     // - Grouping by tech type
     // - Avoiding overlaps with connection lines
     // - Custom spacing rules
+}
+
+void TechTreeUI::createTechProgressBars() {
+    // Clear existing progress bars first
+    techProgressBars.clear();
+    
+    std::cout << "🚀 Creating tech progress bars..." << std::endl;
+    
+    const auto& allTechs = techTree.getAllTechs();
+    
+    for (const auto& pair : allTechs) {
+        const auto& tech = pair.second;
+        
+        // Create UIProgressBar for this tech node - positioned below the tech label
+        const int progressBarHeight = 8;  // Small progress bar
+        const int progressBarOffset = 5;  // Space between label and progress bar
+        
+        auto progressBar = std::make_shared<UIProgressBar>(
+            0, 0, tech->width, progressBarHeight,
+            sdlManager_
+        );
+        
+        // Configure progress bar appearance
+        progressBar->setColors(
+            {40, 40, 40, 180},     // Dark background
+            {0, 200, 100, 255},    // Green fill for progress
+            {100, 100, 100, 255}   // Gray border
+        );
+        progressBar->setBorderWidth(1);
+        progressBar->setShowText(false);  // Don't show percentage text on the small bar
+        progressBar->setAnimated(true, 3.0f);  // Smooth animation
+        
+        // Set initial progress
+        progressBar->setProgress(tech->getProgressPercent());
+        
+        techProgressBars[tech->id] = progressBar;
+        
+        // Position progress bar below the tech label
+        int progressBarX = tech->x;
+        int progressBarY = tech->y + tech->height + progressBarOffset;
+        
+        std::cout << "  Created progress bar for " << tech->name 
+                  << " at (" << progressBarX << ", " << progressBarY 
+                  << ") progress: " << (tech->getProgressPercent() * 100.0f) << "%" << std::endl;
+        
+        setAbsolutePosition(progressBar, {progressBarX, progressBarY, tech->width, progressBarHeight});
+    }
+    
+    std::cout << "✅ Created " << techProgressBars.size() << " progress bars!" << std::endl;
+}
+
+void TechTreeUI::updateTechProgressBars() {
+    const auto& allTechs = techTree.getAllTechs();
+    
+    std::cout << "🔄 Updating tech progress bars..." << std::endl;
+    
+    for (const auto& pair : allTechs) {
+        const auto& tech = pair.second;
+        auto it = techProgressBars.find(tech->id);
+        
+        if (it != techProgressBars.end()) {
+            auto progressBar = it->second;
+            float currentProgress = tech->getProgressPercent();
+            
+            std::cout << "  " << tech->name << ": " 
+                      << (currentProgress * 100.0f) << "% progress, status: " 
+                      << tech->getStatusText() << std::endl;
+            
+            // Update progress bar
+            progressBar->setProgress(currentProgress);
+            
+            // Show/hide progress bar based on tech status
+            if (tech->status == TechStatus::RESEARCHING) {
+                progressBar->setVisible(true);
+                std::cout << "    Showing progress bar for RESEARCHING: " << tech->name << std::endl;
+                // Update colors for research state
+                progressBar->setColors(
+                    {40, 40, 40, 180},     // Dark background
+                    {0, 200, 100, 255},    // Green fill for active research
+                    {100, 100, 100, 255}   // Gray border
+                );
+            } else if (tech->status == TechStatus::COMPLETED) {
+                progressBar->setVisible(true);
+                progressBar->setProgress(1.0f);  // Full progress
+                std::cout << "    Showing progress bar for COMPLETED: " << tech->name << std::endl;
+                // Update colors for completed state
+                progressBar->setColors(
+                    {40, 40, 40, 180},     // Dark background
+                    {100, 200, 255, 255},  // Blue fill for completed
+                    {100, 100, 100, 255}   // Gray border
+                );
+            } else {
+                // Hide progress bar for locked/available techs
+                progressBar->setVisible(false);
+                std::cout << "    Hiding progress bar for " << tech->getStatusText() << ": " << tech->name << std::endl;
+            }
+        }
+    }
 }
