@@ -100,6 +100,7 @@ if(BUILD_UI_FRAMEWORK_TESTS AND CATCH2_AVAILABLE)
         tests/test_ui_textinput.cpp
         tests/test_ui_scenemanager.cpp
         tests/test_ui_theme.cpp
+        tests/test_function_layout.cpp  # Phase 2 refactor test
     )
 
     # Create test executable

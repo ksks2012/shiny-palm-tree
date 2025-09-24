@@ -8,8 +8,8 @@
 
 UILayoutContainer::UILayoutContainer(int x, int y, int width, int height, SDLManager& sdl)
     : UIComponent(x, y, width, height, sdl) {
-    // Default to vertical layout for backward compatibility
-    setVerticalLayout();
+    // Default to vertical layout for backward compatibility  
+    setVerticalLayout();  // Now uses LayoutFactory - no more class instantiation
 }
 
 void UILayoutContainer::addChild(std::shared_ptr<UIComponent> child) {
@@ -26,22 +26,18 @@ void UILayoutContainer::removeChild(std::shared_ptr<UIComponent> child) {
         children_.erase(it);
     }
     
-    // Also remove from special layout managers if needed
-    if (auto borderLayout = dynamic_cast<BorderLayout*>(layout_.get())) {
-        borderLayout->removeComponent(child);
-    } else if (auto absoluteLayout = dynamic_cast<AbsoluteLayout*>(layout_.get())) {
-        absoluteLayout->removeComponent(child);
+    // Layout-specific cleanup through virtual function - no more dynamic_cast!
+    if (layout_) {
+        layout_->removeComponent(child);
     }
 }
 
 void UILayoutContainer::clearChildren() {
     children_.clear();
     
-    // Clear special layout managers
-    if (auto borderLayout = dynamic_cast<BorderLayout*>(layout_.get())) {
-        borderLayout->clearComponents();
-    } else if (auto absoluteLayout = dynamic_cast<AbsoluteLayout*>(layout_.get())) {
-        absoluteLayout->clearComponents();
+    // Layout-specific cleanup through virtual function - no more dynamic_cast!
+    if (layout_) {
+        layout_->clearComponents();
     }
 }
 
@@ -50,28 +46,31 @@ void UILayoutContainer::setLayout(std::unique_ptr<Layout> layout) {
 }
 
 void UILayoutContainer::setVerticalLayout(int spacing) {
-    layout_ = std::make_unique<VerticalLayout>(spacing);
+    layout_ = LayoutFactory::vertical(spacing);
 }
 
 void UILayoutContainer::setHorizontalLayout(int spacing) {
-    layout_ = std::make_unique<HorizontalLayout>(spacing);
+    layout_ = LayoutFactory::horizontal(spacing);
 }
 
 void UILayoutContainer::setGridLayout(int rows, int cols, int spacing) {
-    layout_ = std::make_unique<GridLayout>(rows, cols, spacing);
+    layout_ = LayoutFactory::grid(rows, cols, spacing);
 }
 
 void UILayoutContainer::setBorderLayout(int gap) {
     layout_ = std::make_unique<BorderLayout>(gap);
+    // TODO: Convert to function when BorderLayout API is simplified
     // Note: Components need to be added using addBorderComponent
 }
 
 void UILayoutContainer::setFlexLayout(FlexDirection direction) {
     layout_ = std::make_unique<FlexLayout>(direction);
+    // TODO: Convert to function - FlexLayout is usually overkill for games
 }
 
 void UILayoutContainer::setAbsoluteLayout() {
     layout_ = std::make_unique<AbsoluteLayout>();
+    // TODO: Convert to function when AbsoluteLayout API is simplified
     // Note: Components need positions set using setAbsolutePosition
 }
 
