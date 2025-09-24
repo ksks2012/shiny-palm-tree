@@ -45,6 +45,7 @@ set(UI_SOURCES
     src/Interface/ui/UIContainer.cpp
     src/Interface/ui/UILayoutContainer.cpp
     src/Interface/ui/Layout.cpp
+    src/Interface/ui/SimpleContainer.cpp
     src/Interface/ui/UITooltip.cpp
     src/Interface/ui/UIDataBinding.cpp
     src/Interface/ui/UISceneManager.cpp
@@ -101,6 +102,7 @@ if(BUILD_UI_FRAMEWORK_TESTS AND CATCH2_AVAILABLE)
         tests/test_ui_scenemanager.cpp
         tests/test_ui_theme.cpp
         tests/test_function_layout.cpp  # Phase 2 refactor test
+        tests/test_simple_container.cpp # Phase 3 refactor test
     )
 
     # Create test executable
