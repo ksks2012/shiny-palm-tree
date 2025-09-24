@@ -28,9 +28,7 @@ using UILayoutContainerLegacy [[deprecated("Use SimpleContainer instead")]] = Si
  */
 inline std::shared_ptr<SimpleContainer> createScrollableContainer(
     int x, int y, int width, int height, SDLManager& sdl) {
-    auto container = std::make_shared<SimpleContainer>(x, y, width, height, sdl);
-    container->setScrollable(true); // Enable scrolling by default like UIContainer
-    return container;
+    return SimpleContainer::createUIContainerReplacement(x, y, width, height, sdl);
 }
 
 /**
@@ -39,8 +37,36 @@ inline std::shared_ptr<SimpleContainer> createScrollableContainer(
  */
 inline std::shared_ptr<SimpleContainer> createLayoutContainer(
     int x, int y, int width, int height, SDLManager& sdl) {
-    auto container = std::make_shared<SimpleContainer>(x, y, width, height, sdl);
-    // Default to vertical layout like UILayoutContainer
-    container->setVerticalLayout();
-    return container;
+    return SimpleContainer::createUILayoutContainerReplacement(x, y, width, height, sdl);
+}
+
+/**
+ * Phase 4A: Direct replacement macros for easy migration
+ * 
+ * Usage:
+ * OLD: auto container = std::make_shared<UIContainer>(x, y, w, h, sdl);
+ * NEW: auto container = SIMPLE_CONTAINER(x, y, w, h, sdl);
+ */
+#define SIMPLE_CONTAINER(x, y, w, h, sdl) \
+    SimpleContainer::createUIContainerReplacement(x, y, w, h, sdl)
+
+#define SIMPLE_LAYOUT_CONTAINER(x, y, w, h, sdl) \
+    SimpleContainer::createUILayoutContainerReplacement(x, y, w, h, sdl)
+
+/**
+ * One-line migration helpers with auto-configuration
+ */
+namespace ContainerMigration {
+    // Phase 4A: Direct replacement (recommended)
+    inline auto replaceUIContainer(int x, int y, int w, int h, SDLManager& sdl) {
+        auto container = SimpleContainer::createUIContainerReplacement(x, y, w, h, sdl);
+        // Ready to use - scrolling enabled, auto-layout enabled
+        return container;
+    }
+    
+    inline auto replaceUILayoutContainer(int x, int y, int w, int h, SDLManager& sdl) {
+        auto container = SimpleContainer::createUILayoutContainerReplacement(x, y, w, h, sdl);
+        // Ready to use - auto-layout enabled, vertical layout set
+        return container;
+    }
 }

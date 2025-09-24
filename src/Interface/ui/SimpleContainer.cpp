@@ -8,9 +8,32 @@ SimpleContainer::SimpleContainer(int x, int y, int width, int height, SDLManager
     layout_ = LayoutFactory::vertical();
 }
 
+std::shared_ptr<SimpleContainer> SimpleContainer::createUIContainerReplacement(
+    int x, int y, int width, int height, SDLManager& sdl) {
+    auto container = std::make_shared<SimpleContainer>(x, y, width, height, sdl);
+    // UIContainer behavior: scrollable by default with vertical layout
+    container->setScrollable(true);
+    container->setAutoLayout(true); // Auto-layout for convenience
+    container->setVerticalLayout(5); // Default spacing like UIContainer
+    return container;
+}
+
+std::shared_ptr<SimpleContainer> SimpleContainer::createUILayoutContainerReplacement(
+    int x, int y, int width, int height, SDLManager& sdl) {
+    auto container = std::make_shared<SimpleContainer>(x, y, width, height, sdl);
+    // UILayoutContainer behavior: layout management with auto-layout
+    container->setAutoLayout(true); // Auto-layout for convenience  
+    container->setVerticalLayout(5); // Default layout
+    return container;
+}
+
 void SimpleContainer::addChild(std::shared_ptr<UIComponent> child) {
     if (child) {
         children_.push_back(child);
+        // Auto-layout for forward compatibility with UIContainer/UILayoutContainer
+        if (autoLayout_) {
+            layout();
+        }
     }
 }
 
@@ -23,6 +46,10 @@ void SimpleContainer::removeChild(std::shared_ptr<UIComponent> child) {
     if (layout_) {
         layout_->removeComponent(child);
     }
+    // Auto-layout for forward compatibility
+    if (autoLayout_) {
+        layout();
+    }
 }
 
 void SimpleContainer::clearChildren() {
@@ -30,22 +57,42 @@ void SimpleContainer::clearChildren() {
     if (layout_) {
         layout_->clearComponents();
     }
+    // Auto-layout for forward compatibility
+    if (autoLayout_) {
+        layout();
+    }
 }
 
 void SimpleContainer::setVerticalLayout(int spacing) {
     layout_ = LayoutFactory::vertical(spacing);
+    // Auto-layout when layout type changes
+    if (autoLayout_) {
+        layout();
+    }
 }
 
 void SimpleContainer::setHorizontalLayout(int spacing) {
     layout_ = LayoutFactory::horizontal(spacing);
+    // Auto-layout when layout type changes
+    if (autoLayout_) {
+        layout();
+    }
 }
 
 void SimpleContainer::setGridLayout(int rows, int cols, int spacing) {
     layout_ = LayoutFactory::grid(rows, cols, spacing);
+    // Auto-layout when layout type changes
+    if (autoLayout_) {
+        layout();
+    }
 }
 
 void SimpleContainer::setCustomLayout(std::unique_ptr<Layout> layout) {
     layout_ = std::move(layout);
+    // Auto-layout when layout type changes
+    if (autoLayout_) {
+        this->layout();
+    }
 }
 
 void SimpleContainer::setScrollable(bool scrollable) { 

@@ -26,16 +26,27 @@ private:
     std::unique_ptr<Layout> layout_;
     bool scrollable_ = false;
     int scrollOffset_ = 0;
+    bool autoLayout_ = false; // Automatic layout after child changes
 
     bool isChildVisible(const std::shared_ptr<UIComponent>& child) const;
 
 public:
     SimpleContainer(int x, int y, int width, int height, SDLManager& sdl);
+    
+    // === Forward Compatibility ===
+    static std::shared_ptr<SimpleContainer> createUIContainerReplacement(
+        int x, int y, int width, int height, SDLManager& sdl);
+    static std::shared_ptr<SimpleContainer> createUILayoutContainerReplacement(
+        int x, int y, int width, int height, SDLManager& sdl);
 
     // === Child Management (composition-based) ===
     void addChild(std::shared_ptr<UIComponent> child);
     void removeChild(std::shared_ptr<UIComponent> child);
     void clearChildren();
+    
+    // === Automatic Layout Management ===
+    void setAutoLayout(bool enabled) { autoLayout_ = enabled; }
+    bool isAutoLayout() const { return autoLayout_; }
 
     // === Layout Management (function-based) ===
     void setVerticalLayout(int spacing = 5);
