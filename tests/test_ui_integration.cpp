@@ -13,7 +13,7 @@ public:
     TTF_Font* getFont() const { return nullptr; }
 };
 
-#include "Interface/ui/UIContainer.h"
+#include "Interface/ui/SimpleContainer.h"
 #include "Interface/ui/UIManager.h"
 #include "Interface/ui/UIComponent.h"
 #include "Interface/ui/UICard.h"
@@ -29,7 +29,8 @@ public:
 
 TEST_CASE("Integration: inventory scroll and tooltip show/hide simulation") {
     SDLManager dummy;
-    auto inventory = std::make_shared<UIContainer>(0,0,200,100,dummy);
+    auto inventory = std::make_shared<SimpleContainer>(0,0,200,100,dummy);
+    inventory->setScrollable(true); // Enable scrolling for backward compatibility
     UIManager mgr;
 
     // Add many cards
@@ -37,6 +38,8 @@ TEST_CASE("Integration: inventory scroll and tooltip show/hide simulation") {
         auto c = std::make_shared<MockCard>(20,dummy);
         inventory->addChild(c);
     }
+    
+    inventory->layout(); // Calculate layout for scroll calculations
 
     mgr.addComponent(inventory, true);
 

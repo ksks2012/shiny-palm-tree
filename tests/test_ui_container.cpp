@@ -13,7 +13,7 @@ public:
     TTF_Font* getFont() const { return nullptr; }
 };
 
-#include "Interface/ui/UIContainer.h"
+#include "Interface/ui/SimpleContainer.h"
 #include "Interface/ui/UIComponent.h"
 #include <memory>
 
@@ -23,16 +23,18 @@ public:
     void render() override {}
 };
 
-TEST_CASE("UIContainer scroll and clipping") {
+TEST_CASE("SimpleContainer backward compatibility") {
     SDLManager dummy;
-    UIContainer container(0,0,200,100,dummy);
+    SimpleContainer container(0,0,200,100,dummy);
+    container.setScrollable(true); // Enable scrolling like UIContainer
 
     // add five children, each 30px tall
     for (int i = 0; i < 5; ++i) {
         auto c = std::make_shared<SimpleChild>(200,30,dummy);
         container.addChild(c);
     }
-
+    
+    container.layout(); // Calculate layout for scroll calculations
     REQUIRE(container.getMaxScroll() == std::max(0, 5*30 - 100));
     REQUIRE(container.getVisibleCount() == 4); // 100px container -> 4 visible due to partial overlap
 
