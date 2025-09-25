@@ -45,6 +45,7 @@ set(UI_SOURCES
     src/Interface/ui/UIContainer.cpp
     src/Interface/ui/UILayoutContainer.cpp
     src/Interface/ui/Layout.cpp
+    src/Interface/ui/SimpleContainer.cpp
     src/Interface/ui/UITooltip.cpp
     src/Interface/ui/UIDataBinding.cpp
     src/Interface/ui/UISceneManager.cpp
@@ -100,6 +101,9 @@ if(BUILD_UI_FRAMEWORK_TESTS AND CATCH2_AVAILABLE)
         tests/test_ui_textinput.cpp
         tests/test_ui_scenemanager.cpp
         tests/test_ui_theme.cpp
+        tests/test_function_layout.cpp  # Phase 2 refactor test
+        tests/test_simple_container.cpp # Phase 3 refactor test
+        tests/test_forward_compatibility.cpp # Phase 4A migration helpers
     )
 
     # Create test executable
@@ -169,6 +173,10 @@ if(BUILD_UI_FRAMEWORK_EXAMPLES)
     # Add Theme integration example
     add_executable(ThemeIntegrationExample examples/theme_integration_example.cpp)
     target_link_libraries(ThemeIntegrationExample PRIVATE UIFramework_shared)
+    
+    # Phase 4A Migration Example
+    add_executable(Phase4AMigrationExample examples/phase4a_migration_example.cpp)
+    target_link_libraries(Phase4AMigrationExample PRIVATE UIFramework_shared)
 endif()
 
 if(BUILD_UI_FRAMEWORK_TESTS)

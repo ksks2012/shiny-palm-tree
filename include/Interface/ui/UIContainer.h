@@ -6,9 +6,16 @@
 #include "UILayoutContainer.h"
 
 /**
+ * @deprecated UIContainer is deprecated. Use SimpleContainer instead.
+ * 
  * UIContainer - holds child components in a vertical list with scroll support.
  * Provides clipping and hit-testing that accounts for scroll offset.
  * Now uses the new layout system internally for backward compatibility.
+ * 
+ * MIGRATION: Replace UIContainer with SimpleContainer:
+ * - UIContainer(x, y, w, h, sdl) -> SimpleContainer(x, y, w, h, sdl)
+ * - Call container.setScrollable(true) if scrolling is needed
+ * - Call container.layout() after adding children
  */
 class UIContainer : public UILayoutContainer {
 public:

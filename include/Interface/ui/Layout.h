@@ -1,4 +1,5 @@
 #pragma once
+#include <functional>
 #include <vector>
 #include <memory>
 #include "UIComponent.h"
@@ -33,6 +34,60 @@ public:
     virtual std::pair<int, int> calculatePreferredSize(
         const std::vector<std::shared_ptr<UIComponent>>& children
     ) const = 0;
+    
+    // fix: Make all layouts handle component removal uniformly
+    virtual void removeComponent(std::shared_ptr<UIComponent> component) {}
+    virtual void clearComponents() {}
+};
+
+// Phase 2 Refactor: Function-based layout system
+// Replace 6 layout classes with simple functions
+
+/**
+ * Function-based layout system
+ * Eventually will replace all layout classes
+ */
+using LayoutFunction = std::function<void(
+    std::vector<std::shared_ptr<UIComponent>>&,
+    int containerX, int containerY,
+    int containerWidth, int containerHeight
+)>;
+
+/**
+ * Transitional Layout class
+ * Wraps functions but maintains old interface for backward compatibility
+ */
+class FunctionLayout : public Layout {
+private:
+    LayoutFunction layout_func_;
+    std::function<std::pair<int,int>(const std::vector<std::shared_ptr<UIComponent>>&)> size_func_;
+    
+public:
+    FunctionLayout(LayoutFunction layout_func, 
+                   std::function<std::pair<int,int>(const std::vector<std::shared_ptr<UIComponent>>&)> size_func)
+        : layout_func_(layout_func), size_func_(size_func) {}
+    
+    void layoutChildren(
+        std::vector<std::shared_ptr<UIComponent>>& children,
+        int containerX, int containerY, 
+        int containerWidth, int containerHeight
+    ) override {
+        layout_func_(children, containerX, containerY, containerWidth, containerHeight);
+    }
+    
+    std::pair<int, int> calculatePreferredSize(
+        const std::vector<std::shared_ptr<UIComponent>>& children
+    ) const override {
+        return size_func_(children);
+    }
+    
+    void removeComponent(std::shared_ptr<UIComponent> component) override {
+        // Default implementation - no special handling needed
+    }
+    
+    void clearComponents() override {
+        // Default implementation - no special handling needed  
+    }
 };
 
 /**
@@ -257,3 +312,126 @@ public:
         const std::vector<std::shared_ptr<UIComponent>>& children
     ) const override;
 };
+
+/**
+ * Layout Factory - Create layout functions
+ * This replaces the need for 6 separate layout classes
+ * Simple, direct, no inheritance hell
+ */
+namespace LayoutFactory {
+    
+    inline std::unique_ptr<Layout> vertical(int spacing = 0) {
+        auto layout_func = [spacing](
+            std::vector<std::shared_ptr<UIComponent>>& children,
+            int containerX, int containerY,
+            int containerWidth, int containerHeight
+        ) {
+            int currentY = containerY;
+            for (auto& child : children) {
+                if (!child) continue;
+                child->layout();
+                child->setPosition(containerX, currentY);
+                currentY += child->getHeight() + spacing;
+            }
+        };
+        
+        auto size_func = [spacing](const std::vector<std::shared_ptr<UIComponent>>& children) {
+            int maxWidth = 0, totalHeight = 0;
+            for (size_t i = 0; i < children.size(); ++i) {
+                const auto& child = children[i];
+                if (!child) continue;
+                maxWidth = std::max(maxWidth, child->getWidth());
+                totalHeight += child->getHeight();
+                if (i < children.size() - 1) totalHeight += spacing;
+            }
+            return std::make_pair(maxWidth, totalHeight);
+        };
+        
+        return std::make_unique<FunctionLayout>(layout_func, size_func);
+    }
+    
+    inline std::unique_ptr<Layout> horizontal(int spacing = 0) {
+        auto layout_func = [spacing](
+            std::vector<std::shared_ptr<UIComponent>>& children,
+            int containerX, int containerY,
+            int containerWidth, int containerHeight
+        ) {
+            int currentX = containerX;
+            for (auto& child : children) {
+                if (!child) continue;
+                child->layout();
+                child->setPosition(currentX, containerY);
+                currentX += child->getWidth() + spacing;
+            }
+        };
+        
+        auto size_func = [spacing](const std::vector<std::shared_ptr<UIComponent>>& children) {
+            int totalWidth = 0, maxHeight = 0;
+            for (size_t i = 0; i < children.size(); ++i) {
+                const auto& child = children[i];
+                if (!child) continue;
+                totalWidth += child->getWidth();
+                maxHeight = std::max(maxHeight, child->getHeight());
+                if (i < children.size() - 1) totalWidth += spacing;
+            }
+            return std::make_pair(totalWidth, maxHeight);
+        };
+        
+        return std::make_unique<FunctionLayout>(layout_func, size_func);
+    }
+    
+    // Grid layout for the rare cases where it's actually needed
+    inline std::unique_ptr<Layout> grid(int rows, int cols, int spacing = 0) {
+        auto layout_func = [rows, cols, spacing](
+            std::vector<std::shared_ptr<UIComponent>>& children,
+            int containerX, int containerY,
+            int containerWidth, int containerHeight
+        ) {
+            if (children.empty() || rows <= 0 || cols <= 0) return;
+            
+            int totalSpacingW = (cols - 1) * spacing;
+            int totalSpacingH = (rows - 1) * spacing;
+            int cellWidth = (containerWidth - totalSpacingW) / cols;
+            int cellHeight = (containerHeight - totalSpacingH) / rows;
+            
+            int index = 0;
+            for (int row = 0; row < rows && index < static_cast<int>(children.size()); ++row) {
+                for (int col = 0; col < cols && index < static_cast<int>(children.size()); ++col) {
+                    auto& child = children[index];
+                    if (!child) {
+                        ++index;
+                        continue;
+                    }
+                    
+                    child->layout();
+                    int x = containerX + col * (cellWidth + spacing);
+                    int y = containerY + row * (cellHeight + spacing);
+                    child->setPosition(x, y);
+                    child->setSize(cellWidth, cellHeight);
+                    
+                    ++index;
+                }
+            }
+        };
+        
+        auto size_func = [rows, cols, spacing](const std::vector<std::shared_ptr<UIComponent>>& children) {
+            if (children.empty() || rows <= 0 || cols <= 0) return std::make_pair(0, 0);
+            
+            int maxChildWidth = 0, maxChildHeight = 0;
+            for (const auto& child : children) {
+                if (!child) continue;
+                maxChildWidth = std::max(maxChildWidth, child->getWidth());
+                maxChildHeight = std::max(maxChildHeight, child->getHeight());
+            }
+            
+            int totalWidth = cols * maxChildWidth + (cols - 1) * spacing;
+            int totalHeight = rows * maxChildHeight + (rows - 1) * spacing;
+            return std::make_pair(totalWidth, totalHeight);
+        };
+        
+        return std::make_unique<FunctionLayout>(layout_func, size_func);
+    }
+    
+    // Most games only need vertical/horizontal anyway
+    // BorderLayout, FlexLayout, AbsoluteLayout are usually overkill
+}

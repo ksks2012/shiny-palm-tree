@@ -6,9 +6,18 @@
 #include "Layout.h"
 
 /**
+ * @deprecated UILayoutContainer is deprecated. Use SimpleContainer instead.
+ * 
  * Enhanced UIContainer with pluggable layout managers
  * Supports vertical, horizontal, grid, border, flex, and absolute layouts
  * Maintains backward compatibility with the original vertical layout
+ * 
+ * MIGRATION: Replace UILayoutContainer with SimpleContainer:
+ * - UILayoutContainer(x, y, w, h, sdl) -> SimpleContainer(x, y, w, h, sdl)  
+ * - setVerticalLayout() -> setVerticalLayout() (same interface)
+ * - setHorizontalLayout() -> setHorizontalLayout() (same interface)
+ * - setGridLayout() -> setGridLayout() (same interface)
+ * - Enable scrolling with setScrollable(true) if needed
  */
 class UILayoutContainer : public UIComponent {
 public:
