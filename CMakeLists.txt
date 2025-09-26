@@ -48,6 +48,12 @@ set(UI_SOURCES
     src/Interface/ui/SimpleContainer.cpp
     src/Interface/ui/UITooltip.cpp
     src/Interface/ui/UIDataBinding.cpp
+    # Hexagonal Grid System
+    src/Interface/ui/HexCoordinate.cpp
+    src/Interface/ui/HexTile.cpp
+    src/Interface/ui/HexGrid.cpp
+    src/Interface/ui/HexGridRenderer.cpp
+    src/Interface/ui/HexGridEditor.cpp
     src/Interface/ui/UISceneManager.cpp
     src/Interface/ui/FocusableButton.cpp
     src/Interface/ui/FocusableButtonTestWindow.cpp
@@ -138,45 +144,46 @@ option(BUILD_UI_FRAMEWORK_TESTS "Build UI Framework tests" OFF)
 
 # Only build examples and tests if specifically requested
 if(BUILD_UI_FRAMEWORK_EXAMPLES)
-    # Add UILabel example
-    add_executable(LabelExample examples/label_example.cpp)
+    # UI Components Examples
+    add_executable(LabelExample examples/ui_components/label_example.cpp)
     target_link_libraries(LabelExample PRIVATE UIFramework_shared)
 
-    # Add UITextInput example
-    add_executable(TextInputExample examples/textinput_example.cpp)
+    add_executable(TextInputExample examples/ui_components/textinput_example.cpp)
     target_link_libraries(TextInputExample PRIVATE UIFramework_shared)
 
-    # Add Layout examples
-    add_executable(LayoutExamples examples/layout_examples.cpp)
+    add_executable(LayoutExamples examples/ui_components/layout_examples.cpp)
     target_link_libraries(LayoutExamples PRIVATE UIFramework_shared)
 
-    # Add Data Binding example
-    add_executable(DataBindingExample examples/databinding_example.cpp)
+    add_executable(DataBindingExample examples/ui_components/databinding_example.cpp)
     target_link_libraries(DataBindingExample PRIVATE UIFramework_shared)
 
-    # Add Scene Manager example
-    add_executable(SceneExample examples/scene_example.cpp)
+    add_executable(SceneExample examples/ui_components/scene_example.cpp)
     target_link_libraries(SceneExample PRIVATE UIFramework_shared)
 
-    # Add Progress Bar example
-    add_executable(ProgressBarExample examples/progressbar_example.cpp)
+    add_executable(ProgressBarExample examples/ui_components/progressbar_example.cpp)
     target_link_libraries(ProgressBarExample PRIVATE UIFramework_shared)
+    
+    add_executable(Phase4AMigrationExample examples/ui_components/phase4a_migration_example.cpp)
+    target_link_libraries(Phase4AMigrationExample PRIVATE UIFramework_shared)
 
-    # Add Theme example
-    add_executable(ThemeExample examples/theme_example.cpp)
+    # Theme Examples
+    add_executable(ThemeExample examples/theme_examples/theme_example.cpp)
     target_link_libraries(ThemeExample PRIVATE UIFramework_shared)
 
-    # Add Theme console demo
-    add_executable(ThemeConsoleDemo examples/theme_console_demo.cpp)
+    add_executable(ThemeConsoleDemo examples/theme_examples/theme_console_demo.cpp)
     target_link_libraries(ThemeConsoleDemo PRIVATE UIFramework_shared)
 
-    # Add Theme integration example
-    add_executable(ThemeIntegrationExample examples/theme_integration_example.cpp)
+    add_executable(ThemeIntegrationExample examples/theme_examples/theme_integration_example.cpp)
     target_link_libraries(ThemeIntegrationExample PRIVATE UIFramework_shared)
     
-    # Phase 4A Migration Example
-    add_executable(Phase4AMigrationExample examples/phase4a_migration_example.cpp)
-    target_link_libraries(Phase4AMigrationExample PRIVATE UIFramework_shared)
+    add_executable(VisualThemeIntegrationExample examples/theme_examples/visual_theme_integration_example.cpp)
+    target_link_libraries(VisualThemeIntegrationExample PRIVATE UIFramework_shared)
+    
+    # HexGrid Examples (Streamlined)
+    # Debug Tools
+    add_executable(VisualCoordinateDebugger examples/debug_tools/visual_coordinate_debugger.cpp)
+    target_link_libraries(VisualCoordinateDebugger PRIVATE UIFramework_shared)
+
 endif()
 
 if(BUILD_UI_FRAMEWORK_TESTS)

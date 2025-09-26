@@ -58,6 +58,7 @@ Makefile
 *.bak
 *.backup
 **/refactor/**
+**/backup_*/**
 
 # Logs
 *.log
