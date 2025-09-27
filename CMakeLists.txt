@@ -180,10 +180,26 @@ if(BUILD_UI_FRAMEWORK_EXAMPLES)
     target_link_libraries(VisualThemeIntegrationExample PRIVATE UIFramework_shared)
     
     # HexGrid Examples (Streamlined)
+    add_executable(HexGridExample examples/hexgrid_examples/hex_grid_example.cpp)
+    target_link_libraries(HexGridExample PRIVATE UIFramework_shared)
+    
+    add_executable(EnhancedHexExample examples/hexgrid_examples/enhanced_hex_example.cpp)
+    target_link_libraries(EnhancedHexExample PRIVATE UIFramework_shared)
+
     # Debug Tools
     add_executable(VisualCoordinateDebugger examples/debug_tools/visual_coordinate_debugger.cpp)
     target_link_libraries(VisualCoordinateDebugger PRIVATE UIFramework_shared)
+    
+    add_executable(ManualControlDebugger examples/debug_tools/manual_control_debugger.cpp)
+    target_link_libraries(ManualControlDebugger PRIVATE UIFramework_shared)
 
+    # Coordinate Testing (Streamlined for development/debugging)
+    add_executable(ComprehensiveCoordinateTest examples/coordinate_testing/comprehensive_coordinate_test.cpp)
+    target_link_libraries(ComprehensiveCoordinateTest PRIVATE UIFramework_shared)
+    
+    add_executable(CoordinateAccuracyTest examples/coordinate_testing/coordinate_accuracy_test.cpp)
+    target_link_libraries(CoordinateAccuracyTest PRIVATE UIFramework_shared)
+    
 endif()
 
 if(BUILD_UI_FRAMEWORK_TESTS)
