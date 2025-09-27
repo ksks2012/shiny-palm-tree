@@ -106,17 +106,18 @@ std::vector<HexCoordinate> HexCoordinate::getCoordinatesInRange(int range) const
 }
 
 void HexCoordinate::toScreenCoords(float& screenX, float& screenY, float hexSize) const {
-    screenX = hexSize * (3.0f / 2.0f * x);
-    screenY = hexSize * (std::sqrt(3.0f) / 2.0f * x + std::sqrt(3.0f) * z);
+    // Flat-top hexagon coordinate conversion
+    screenX = hexSize * (std::sqrt(3.0f) * x + std::sqrt(3.0f) / 2.0f * z);
+    screenY = hexSize * (3.0f / 2.0f * z);
 }
 
 HexCoordinate HexCoordinate::fromScreenCoords(float screenX, float screenY, float hexSize) {
-    // Inverse of toScreenCoords formulas:
-    // screenX = hexSize * (3/2 * x)
-    // screenY = hexSize * (√3/2 * x + √3 * z)
+    // Inverse of flat-top hexagon toScreenCoords formulas:
+    // screenX = hexSize * (√3 * x + √3/2 * z)
+    // screenY = hexSize * (3/2 * z)
     
-    float x = (2.0f / 3.0f * screenX) / hexSize;
-    float z = (screenY / hexSize - std::sqrt(3.0f) / 2.0f * x) / std::sqrt(3.0f);
+    float z = (2.0f / 3.0f * screenY) / hexSize;
+    float x = (screenX / hexSize - std::sqrt(3.0f) / 2.0f * z) / std::sqrt(3.0f);
     float y = -x - z;
     
     // Round to nearest hex coordinate
