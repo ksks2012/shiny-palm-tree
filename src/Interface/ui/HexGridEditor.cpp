@@ -143,6 +143,13 @@ void HexGridEditor::handleEvent(const SDL_Event& event) {
                 }
             }
             break;
+            
+        case SDL_MOUSEWHEEL:
+            // Forward mouse wheel events to renderer for zoom functionality
+            if (renderer_) {
+                renderer_->handleEvent(event);
+            }
+            break;
     }
 }
 

@@ -3,6 +3,7 @@
 #include "Systems/SDLManager.h"
 #include <cmath>
 #include <algorithm>
+#include <iostream>
 
 HexGridRenderer::HexGridRenderer(int x, int y, int width, int height, SDLManager& sdlManager, 
                                 std::shared_ptr<HexGrid> grid)
@@ -86,7 +87,10 @@ void HexGridRenderer::handleEvent(const SDL_Event& event) {
             break;
             
         case SDL_MOUSEWHEEL:
-            if (hasFocus_) {
+            // Handle mouse wheel for zoom regardless of focus, as long as mouse is over this component
+            int mouseX, mouseY;
+            SDL_GetMouseState(&mouseX, &mouseY);
+            if (isPointInside(mouseX, mouseY)) {
                 handleMouseWheel(event.wheel.y);
             }
             break;
@@ -478,8 +482,43 @@ void HexGridRenderer::handleMouseMotion(int x, int y) {
 }
 
 void HexGridRenderer::handleMouseWheel(int deltaY) {
+    // Calculate zoom factor based on wheel direction
     float zoomFactor = (deltaY > 0) ? 1.1f : 0.9f;
-    setZoom(config_.zoomLevel * zoomFactor);
+    float oldZoom = config_.zoomLevel;
+    float newZoom = oldZoom * zoomFactor;
+    
+    // Clamp zoom to reasonable bounds
+    const float MIN_ZOOM = 0.1f;
+    const float MAX_ZOOM = 5.0f;
+    newZoom = std::max(MIN_ZOOM, std::min(MAX_ZOOM, newZoom));
+    
+    // Get current mouse position for zoom centering
+    int mouseX, mouseY;
+    SDL_GetMouseState(&mouseX, &mouseY);
+    
+    // Check if mouse is over this renderer component
+    bool mouseInRenderer = (mouseX >= x_ && mouseX < x_ + width_ &&
+                           mouseY >= y_ && mouseY < y_ + height_);
+    
+    if (mouseInRenderer) {
+        // Calculate mouse position relative to renderer
+        float relativeX = mouseX - x_;
+        float relativeY = mouseY - y_;
+        
+        // Calculate world coordinates at mouse position before zoom
+        float worldX = (relativeX - config_.panX) / oldZoom;
+        float worldY = (relativeY - config_.panY) / oldZoom;
+        
+        // Apply new zoom level
+        config_.zoomLevel = newZoom;
+        
+        // Adjust pan to keep the same world point under the mouse cursor
+        config_.panX = relativeX - worldX * newZoom;
+        config_.panY = relativeY - worldY * newZoom;
+    } else {
+        // If mouse is not over renderer, just zoom without centering
+        config_.zoomLevel = newZoom;
+    }
 }
 
 void HexGridRenderer::handleKeyPress(SDL_Keycode key) {
