@@ -192,6 +192,9 @@ if(BUILD_UI_FRAMEWORK_EXAMPLES)
     
     add_executable(ManualControlDebugger examples/debug_tools/manual_control_debugger.cpp)
     target_link_libraries(ManualControlDebugger PRIVATE UIFramework_shared)
+    
+    add_executable(MiddleClickTest examples/debug_tools/middle_click_test.cpp)
+    target_link_libraries(MiddleClickTest PRIVATE UIFramework_shared)
 
     # Coordinate Testing (Streamlined for development/debugging)
     add_executable(ComprehensiveCoordinateTest examples/coordinate_testing/comprehensive_coordinate_test.cpp)
