@@ -4,6 +4,7 @@
 #include <memory>
 #include <iostream>
 #include <iomanip>
+#include <cmath>
 
 /**
  * Visual coordinate debugging program
@@ -18,6 +19,7 @@ public:
         std::cout << "This program displays ALL coordinate calculations for debugging" << std::endl;
         std::cout << "Controls:" << std::endl;
         std::cout << "  Mouse: Click to see detailed coordinate analysis" << std::endl;
+        std::cout << "  Mouse Wheel: Zoom in/out (centered at cursor position)" << std::endl;
         std::cout << "  SPACE: Toggle coordinate display overlay" << std::endl;
         std::cout << "  G: Toggle grid lines" << std::endl;
         std::cout << "  P: Toggle panels" << std::endl;
@@ -161,6 +163,8 @@ public:
                     handleDetailedMouseClick(event);
                 } else if (event.type == SDL_MOUSEMOTION) {
                     handleMouseMotion(event);
+                } else if (event.type == SDL_MOUSEWHEEL) {
+                    handleMouseWheel(event);
                 }
                 
                 uiManager_->handleEvent(event);
@@ -417,6 +421,65 @@ public:
                 }
             }
         }
+    }
+    
+    void handleMouseWheel(const SDL_Event& event) {
+        if (!hexEditor_ || !hexEditor_->getRenderer()) return;
+        
+        auto renderer = hexEditor_->getRenderer();
+        auto& config = renderer->getRenderConfig();
+        
+        // Calculate zoom factor based on wheel direction
+        float zoomFactor = (event.wheel.y > 0) ? 1.1f : 0.9f;
+        float oldZoom = config.zoomLevel;
+        float newZoom = oldZoom * zoomFactor;
+        
+        // Clamp zoom to reasonable bounds
+        const float MIN_ZOOM = 0.1f;
+        const float MAX_ZOOM = 5.0f;
+        newZoom = std::max(MIN_ZOOM, std::min(MAX_ZOOM, newZoom));
+        
+        // Get mouse position relative to renderer for zoom centering
+        int mouseX, mouseY;
+        SDL_GetMouseState(&mouseX, &mouseY);
+        
+        // Check if mouse is over the hex grid area
+        bool mouseInGrid = (mouseX >= renderer->getX() && mouseX < renderer->getX() + renderer->getWidth() &&
+                           mouseY >= renderer->getY() && mouseY < renderer->getY() + renderer->getHeight());
+        
+        if (mouseInGrid) {
+            // Calculate mouse position relative to renderer
+            float relativeX = mouseX - renderer->getX();
+            float relativeY = mouseY - renderer->getY();
+            
+            // Calculate world coordinates at mouse position before zoom
+            float worldX = (relativeX - config.panX) / oldZoom;
+            float worldY = (relativeY - config.panY) / oldZoom;
+            
+            // Apply new zoom level
+            config.zoomLevel = newZoom;
+            
+            // Adjust pan to keep the same world point under the mouse cursor
+            config.panX = relativeX - worldX * newZoom;
+            config.panY = relativeY - worldY * newZoom;
+            
+            std::cout << "Zoom: " << std::fixed << std::setprecision(2) << newZoom 
+                      << " (centered at mouse position)" << std::endl;
+        } else {
+            // If mouse is not over grid, just zoom without centering
+            config.zoomLevel = newZoom;
+            std::cout << "Zoom: " << std::fixed << std::setprecision(2) << newZoom 
+                      << " (centered at current view)" << std::endl;
+        }
+        
+        // Print debug information
+        std::cout << "  Pan: (" << std::fixed << std::setprecision(1) 
+                  << config.panX << ", " << config.panY << ")" << std::endl;
+        
+        // Update hex size in config to reflect visual zoom (optional)
+        // This maintains hexagon proportions when zooming
+        const float BASE_HEX_SIZE = 50.0f; // Original hex size
+        config.hexSize = BASE_HEX_SIZE; // Keep hex size constant, zoom handles scaling
     }
     
     void renderCoordinateOverlay() {
