@@ -69,6 +69,13 @@ void HexGridRenderer::handleEvent(const SDL_Event& event) {
             }
             break;
             
+        case SDL_MOUSEBUTTONUP:
+            // Handle mouse button release to cancel dragging operations
+            if (event.button.button == SDL_BUTTON_MIDDLE && isDragging_) {
+                isDragging_ = false;  // Cancel middle-click pan operation
+            }
+            break;
+            
         case SDL_MOUSEMOTION:
             if (isPointInside(event.motion.x, event.motion.y)) {
                 // Convert absolute coordinates to relative coordinates for the renderer

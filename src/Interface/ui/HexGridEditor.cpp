@@ -115,6 +115,13 @@ void HexGridEditor::handleEvent(const SDL_Event& event) {
             }
             break;
             
+        case SDL_MOUSEBUTTONUP:
+            // Let renderer handle button release events (for pan cancellation, etc.)
+            if (renderer_) {
+                renderer_->handleEvent(event);
+            }
+            break;
+            
         case SDL_MOUSEMOTION:
             // Let renderer handle motion events for hover, panning, etc.
             if (renderer_ && renderer_->isPointInside(event.motion.x, event.motion.y)) {
